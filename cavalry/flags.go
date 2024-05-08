@@ -19,6 +19,7 @@ func (f Flags) Get(name string) (*string, error) {
 
 	if current == nil {
 		return nil, errors.New(fmt.Sprintf("flag %s not found", name))
+
 	}
 
 	return current, nil
