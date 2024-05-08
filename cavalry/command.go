@@ -1,6 +1,6 @@
 package cavalry
 
-type CommandHandler func(flags Flags)
+type CommandHandler func()
 
 type Command struct {
 	Command     string
@@ -8,6 +8,6 @@ type Command struct {
 	Handle      CommandHandler
 }
 
-func (c *Command) Run(flags Flags) {
-	c.Handle(flags)
+func (c *Command) Run() {
+	c.Handle()
 }

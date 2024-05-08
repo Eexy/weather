@@ -10,7 +10,6 @@ import (
 func main() {
 	dotenv.Parse()
 	cli := cavalry.NewCavalry()
-	cli.AddCommand(command.NewGetWeatherCommand())
-	cli.Flags().Add("city", "paris", "City")
+	cli.AddCommand(command.NewGetWeatherCommand(cli))
 	cli.Run(os.Args)
 }

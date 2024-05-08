@@ -7,16 +7,14 @@ import (
 
 type Cavalry struct {
 	Commands map[string]*Command
-	flags    Flags
+	flags    *flag.FlagSet
 }
 
 func NewCavalry() *Cavalry {
 
 	return &Cavalry{
 		Commands: make(map[string]*Command),
-		flags: Flags{
-			Flags: make(map[string]*string),
-		},
+		flags:    flag.NewFlagSet("cli", flag.ContinueOnError),
 	}
 }
 
@@ -24,12 +22,12 @@ func (c *Cavalry) AddCommand(cmd *Command) {
 	c.Commands[cmd.Command] = cmd
 }
 
-func (c *Cavalry) Flags() Flags {
+func (c *Cavalry) Flags() *flag.FlagSet {
 	return c.flags
 }
 
 func (c *Cavalry) Run(args []string) error {
-	flag.Parsed()
+	c.flags.Parse(args[2:])
 
 	if len(args) < 1 {
 		return errors.New("no command specified")
@@ -40,6 +38,6 @@ func (c *Cavalry) Run(args []string) error {
 		return errors.New("unknown command: " + args[0])
 	}
 
-	command.Run(c.flags)
+	command.Run()
 	return nil
 }

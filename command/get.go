@@ -9,15 +9,16 @@ import (
 	"weather/cavalry"
 )
 
-func NewGetWeatherCommand() *cavalry.Command {
+func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
+	city := cmd.Flags().String("city", "", "city name")
+
 	return &cavalry.Command{
 		Command:     "get",
 		Description: "Get the current weather for the specified location",
-		Handle: func(flags cavalry.Flags) {
+		Handle: func() {
 			apiKey := os.Getenv("API_KEY")
 
-			city, _ := flags.Get("city")
-			if city == nil {
+			if city == nil || *city == "" {
 				fmt.Println("Unable to get city. Invalid parameter")
 				os.Exit(1)
 			}
