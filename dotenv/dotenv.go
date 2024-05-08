@@ -3,17 +3,34 @@ package dotenv
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 )
 
-// Parse environment variables contains in the '.env' file at the root
+// Parse parses environment variables contains in the '.env' file at the root
 func Parse() error {
-	data, err := readEnvFile()
+	data, err := readFile("./.env")
 	if err != nil {
 		return err
 	}
 
-	lines := strings.Split(string(data), "\n")
+	extractValues(strings.Split(data, "\n"))
+	return nil
+}
+
+// ParseFiles parses environment variables contains in the specified files
+func ParseFiles(files ...string) {
+	for _, file := range files {
+		data, err := readFile(file)
+		if err != nil {
+			fmt.Printf("Error reading file %s: %s\n", file, err)
+		} else {
+			extractValues(strings.Split(data, "\n"))
+		}
+	}
+}
+
+func extractValues(lines []string) {
 	for _, line := range lines {
 		pair := strings.Split(line, "=")
 		if len(pair) == 2 {
@@ -22,12 +39,15 @@ func Parse() error {
 			os.Setenv(name, value)
 		}
 	}
-
-	return nil
 }
 
-func readEnvFile() (string, error) {
-	data, err := os.ReadFile(".env")
+func readFile(filename string) (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	data, err := os.ReadFile(path.Join(wd, filename))
 	if err != nil {
 		return "", err
 	}

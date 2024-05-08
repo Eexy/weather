@@ -101,5 +101,5 @@ fabric.properties
 go.work
 
 ### dotenv template
-.env
+*.env
 
