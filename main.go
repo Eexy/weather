@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"weather/dotenv"
 )
 
 func main() {
+	dotenv.Parse()
+
 	cityFlag := flag.String("city", "paris", "city flag")
 	flag.Parse()
 	fmt.Printf("City: %s\n", *cityFlag)
@@ -18,7 +21,6 @@ func main() {
 		fmt.Println("API key not found in environment")
 		os.Exit(1)
 	}
-	fmt.Printf("API key: %s\n", apiKey)
 
 	geocodingRes, err := http.Get(fmt.Sprintf("http://api.openweathermap.org/geo/1.0/direct?q=%s&limit=1&appid=%s", *cityFlag, apiKey))
 	if err != nil {
