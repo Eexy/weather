@@ -11,6 +11,7 @@ import (
 
 func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
 	city := cmd.Flags().String("city", "", "city name")
+	units := cmd.Flags().String("units", "metric", "temperature")
 
 	return &cavalry.Command{
 		Command:     "get",
@@ -29,15 +30,38 @@ func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
 				os.Exit(1)
 			}
 
-			forecast, err := getForecast(location, apiKey)
+			err = parseUnitFlag(units)
+			if err != nil {
+				fmt.Printf(err.Error())
+				os.Exit(1)
+			}
+
+			forecast, err := getForecast(location, *units, apiKey)
 			if err != nil {
 				fmt.Printf("Unable to get forecast. Error: %s\n", err)
 				os.Exit(1)
 			}
 
-			fmt.Printf("Temp at %s: %f°C\n", *city, forecast.Main.Temp)
+			if *units == "metric" {
+				fmt.Printf("Temp at %s: %f°C\n", *city, forecast.Main.Temp)
+			} else {
+				fmt.Printf("Temp at %s: %f°F\n", *city, forecast.Main.Temp)
+			}
+
 		},
 	}
+}
+
+func parseUnitFlag(unit *string) error {
+	if unit == nil {
+		return errors.New("invalid unit parameter. Parameter should be 'metric' or 'imperial'")
+	}
+
+	if *unit != "metric" && *unit != "imperial" {
+		return errors.New("invalid unit parameter. Parameter should be 'metric' or 'imperial'")
+	}
+
+	return nil
 }
 
 type Geocoding struct {
@@ -75,8 +99,8 @@ type ForecastMain struct {
 	Temp float64 `json:"temp"`
 }
 
-func getForecast(location *Geocoding, apiKey string) (*Forecast, error) {
-	forecastRes, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=metric&appid=%s", location.Lat, location.Lon, apiKey))
+func getForecast(location *Geocoding, units string, apiKey string) (*Forecast, error) {
+	forecastRes, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=%s&appid=%s", location.Lat, location.Lon, units, apiKey))
 	if err != nil {
 		return nil, err
 	}
