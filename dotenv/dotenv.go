@@ -30,8 +30,16 @@ func ParseFiles(files ...string) {
 	}
 }
 
+// extractValues extract values from the lines passed and use it to set environment variables
 func extractValues(lines []string) {
 	for _, line := range lines {
+		trimmedLine := strings.TrimSpace(line)
+
+		// check if line is empty or if it's a comment
+		if trimmedLine == "" || strings.HasPrefix(trimmedLine, "#") {
+			continue
+		}
+
 		pair := strings.Split(line, "=")
 		if len(pair) == 2 {
 			name := strings.ToUpper(strings.TrimSpace(pair[0]))
