@@ -11,7 +11,6 @@ import (
 
 func main() {
 	dotenv.Parse()
-
 	cityFlag := flag.String("city", "paris", "city flag")
 	flag.Parse()
 	fmt.Printf("City: %s\n", *cityFlag)
