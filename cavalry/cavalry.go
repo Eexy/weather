@@ -3,6 +3,7 @@ package cavalry
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 )
@@ -24,6 +25,7 @@ func NewCavalry() *Cavalry {
 	}
 
 	cmd.AddCommand(newVersionCommand(cmd))
+	cmd.AddCommand(newHelpCommand(cmd))
 	return cmd
 }
 
@@ -57,6 +59,23 @@ func newVersionCommand(cmd *Cavalry) *Command {
 		Description: "Get version",
 		Handle: func() {
 			cmd.Logger.Printf("version: %s\n", cmd.Version)
+		},
+	}
+}
+
+func newHelpCommand(cmd *Cavalry) *Command {
+	return &Command{
+		Command:     "help",
+		Description: "Get help",
+		Handle: func() {
+			fmt.Printf("version: %s\n", cmd.Version)
+			fmt.Printf("\ncommands:\n")
+			for k, v := range cmd.Commands {
+				fmt.Printf("\t%s : %s\n", k, v.Description)
+			}
+
+			fmt.Printf("\nFlags:\n")
+			cmd.flags.PrintDefaults()
 		},
 	}
 }
