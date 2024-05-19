@@ -20,13 +20,13 @@ func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
 			apiKey := os.Getenv("API_KEY")
 
 			if city == nil || *city == "" {
-				fmt.Println("Unable to get city. Invalid parameter")
+				cmd.Logger.Println("Unable to get city. Invalid parameter")
 				os.Exit(1)
 			}
 
 			location, err := getLocation(*city, apiKey)
 			if err != nil {
-				fmt.Printf("Unable to get location. Error: %s\n", err)
+				cmd.Logger.Printf("Unable to get location. Error: %s\n", err)
 				os.Exit(1)
 			}
 
@@ -38,14 +38,14 @@ func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
 
 			forecast, err := getForecast(location, *units, apiKey)
 			if err != nil {
-				fmt.Printf("Unable to get forecast. Error: %s\n", err)
+				cmd.Logger.Printf("Unable to get forecast. Error: %s\n", err)
 				os.Exit(1)
 			}
 
 			if *units == "metric" {
-				fmt.Printf("Temp at %s: %f°C\n", *city, forecast.Main.Temp)
+				cmd.Logger.Printf("Temp at %s: %f°C\n", *city, forecast.Main.Temp)
 			} else {
-				fmt.Printf("Temp at %s: %f°F\n", *city, forecast.Main.Temp)
+				cmd.Logger.Printf("Temp at %s: %f°F\n", *city, forecast.Main.Temp)
 			}
 
 		},

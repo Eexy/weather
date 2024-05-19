@@ -3,13 +3,15 @@ package cavalry
 import (
 	"errors"
 	"flag"
-	"fmt"
+	"log"
+	"os"
 )
 
 type Cavalry struct {
 	Commands map[string]*Command
 	flags    *flag.FlagSet
 	Version  string
+	Logger   *log.Logger
 }
 
 func NewCavalry() *Cavalry {
@@ -18,6 +20,7 @@ func NewCavalry() *Cavalry {
 		Commands: make(map[string]*Command),
 		flags:    flag.NewFlagSet("cli", flag.ContinueOnError),
 		Version:  "1.0.0",
+		Logger:   log.New(os.Stdout, "", log.LstdFlags),
 	}
 
 	cmd.AddCommand(newVersionCommand(cmd))
@@ -53,7 +56,7 @@ func newVersionCommand(cmd *Cavalry) *Command {
 		Command:     "version",
 		Description: "Get version",
 		Handle: func() {
-			fmt.Printf("version: %s\n", cmd.Version)
+			cmd.Logger.Printf("version: %s\n", cmd.Version)
 		},
 	}
 }
