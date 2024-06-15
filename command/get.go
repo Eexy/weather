@@ -60,20 +60,13 @@ func parseUnitFlag(unit *string) error {
 	return nil
 }
 
-type Geocoding struct {
-	Name    string  `json:"name"`
-	Lat     float64 `json:"lat"`
-	Lon     float64 `json:"lon"`
-	Country string  `json:"country"`
-}
-
-func getLocation(city string, apiKey string) (*Geocoding, error) {
+func getLocation(city string, apiKey string) (*model.Geocoding, error) {
 	geocodingRes, err := http.Get(fmt.Sprintf("http://api.openweathermap.org/geo/1.0/direct?q=%s&limit=1&appid=%s", city, apiKey))
 	if err != nil {
 		return nil, err
 	}
 	defer geocodingRes.Body.Close()
-	var geocodings []Geocoding
+	var geocodings []model.Geocoding
 
 	if err := json.NewDecoder(geocodingRes.Body).Decode(&geocodings); err != nil {
 		fmt.Println(err)
@@ -87,7 +80,7 @@ func getLocation(city string, apiKey string) (*Geocoding, error) {
 	return &geocodings[0], nil
 }
 
-func getForecast(location *Geocoding, units string, apiKey string) (*model.Forecast, error) {
+func getForecast(location *model.Geocoding, units string, apiKey string) (*model.Forecast, error) {
 	forecastRes, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=%s&appid=%s", location.Lat, location.Lon, units, apiKey))
 	if err != nil {
 		return nil, err
