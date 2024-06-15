@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"weather/cavalry"
+	"weather/model"
 )
 
 func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
@@ -42,12 +43,7 @@ func NewGetWeatherCommand(cmd *cavalry.Cavalry) *cavalry.Command {
 				os.Exit(1)
 			}
 
-			if *units == "metric" {
-				cmd.Logger.Printf("Temp at %s: %f°C\n", *city, forecast.Main.Temp)
-			} else {
-				cmd.Logger.Printf("Temp at %s: %f°F\n", *city, forecast.Main.Temp)
-			}
-
+			cmd.Logger.Println(forecast.String())
 		},
 	}
 }
@@ -91,22 +87,14 @@ func getLocation(city string, apiKey string) (*Geocoding, error) {
 	return &geocodings[0], nil
 }
 
-type Forecast struct {
-	Main ForecastMain `json:"main"`
-}
-
-type ForecastMain struct {
-	Temp float64 `json:"temp"`
-}
-
-func getForecast(location *Geocoding, units string, apiKey string) (*Forecast, error) {
+func getForecast(location *Geocoding, units string, apiKey string) (*model.Forecast, error) {
 	forecastRes, err := http.Get(fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=%s&appid=%s", location.Lat, location.Lon, units, apiKey))
 	if err != nil {
 		return nil, err
 	}
 	defer forecastRes.Body.Close()
 
-	var forecast Forecast
+	var forecast model.Forecast
 	if err := json.NewDecoder(forecastRes.Body).Decode(&forecast); err != nil {
 		return nil, err
 	}
