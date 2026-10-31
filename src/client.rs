@@ -44,7 +44,7 @@ impl fmt::Display for ClientError {
 impl std::error::Error for ClientError {}
 
 #[derive(Debug, Deserialize)]
-pub struct Coordinate {
+pub struct Location {
     name: String,
     lat: f32,
     lon: f32,
@@ -79,7 +79,7 @@ impl WeatherClient {
         &self,
         city: &str,
         country: Option<String>,
-    ) -> Result<Coordinate, ClientError> {
+    ) -> Result<Location, ClientError> {
         let mut url = format!("http://api.openweathermap.org/geo/1.0/direct?q={city}");
 
         if let Some(country) = country {
@@ -96,7 +96,7 @@ impl WeatherClient {
             _ => {}
         }
 
-        let locations: Vec<Coordinate> = response.json().map_err(ClientError::InvalidResponse)?;
+        let locations: Vec<Location> = response.json().map_err(ClientError::InvalidResponse)?;
 
         locations
             .into_iter()
