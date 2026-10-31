@@ -1,7 +1,5 @@
 use std::fmt::{self, Debug};
 
-use crate::config::ConfigError::{InvalidArgument, MissingCity, MissingCountry};
-
 #[derive(Debug, PartialEq, Eq)]
 pub struct Config {
     pub city: String,
@@ -12,15 +10,15 @@ pub struct Config {
 pub enum ConfigError {
     MissingCity,
     MissingCountry,
-    InvalidArgument,
+    InvalidArgument(String),
 }
 
 impl fmt::Display for ConfigError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            MissingCity => write!(f, "argument city `-c` need a value"),
-            MissingCountry => write!(f, "argument country `--country` need a value"),
-            InvalidArgument => write!(f, "invalid argument"),
+            Self::MissingCity => write!(f, "argument city `-c` need a value"),
+            Self::MissingCountry => write!(f, "argument country `--country` need a value"),
+            Self::InvalidArgument(arg) => write!(f, "invalid argument {arg}"),
         }
     }
 }
@@ -42,7 +40,7 @@ impl Config {
                     country = Some(args.next().ok_or(ConfigError::MissingCountry)?);
                 }
                 _ => {
-                    return Err(ConfigError::InvalidArgument);
+                    return Err(ConfigError::InvalidArgument(flag));
                 }
             }
         }
@@ -102,7 +100,7 @@ mod tests {
 
         assert_eq!(
             Config::parse(args).err(),
-            Some(ConfigError::InvalidArgument)
+            Some(ConfigError::InvalidArgument("--x".to_string()))
         );
     }
 
