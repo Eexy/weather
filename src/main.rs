@@ -4,7 +4,9 @@ use crate::config::Config;
 
 mod config;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = match Config::parse(env::args()) {
+    dotenvy::dotenv()?;
+
+    let config = match Config::parse(env::args(), env::vars()) {
         Ok(config) => config,
         Err(e) => {
             eprintln!("{e}");
