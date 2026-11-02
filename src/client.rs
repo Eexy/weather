@@ -1,6 +1,6 @@
 use std::fmt::{self, Debug};
 
-use reqwest::blocking::Client;
+use reqwest::blocking::{Client, ClientBuilder};
 use serde::Deserialize;
 
 use crate::config::Country;
@@ -51,6 +51,32 @@ pub struct Location {
     lat: f32,
     lon: f32,
     country: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Condition {
+    id: u16,
+    main: String,
+    description: String,
+    icon: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Measurements {
+    temp: f32,
+    temp_min: f32,
+    temp_max: f32,
+    feels_like: f32,
+    pressure: u16,
+    humidity: u16,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CurrentWeather {
+    #[serde(rename = "main")]
+    measurements: Measurements,
+    #[serde(rename = "weather")]
+    conditions: Vec<Condition>,
 }
 
 #[derive(Debug)]
@@ -112,6 +138,32 @@ impl WeatherClient {
             .into_iter()
             .next()
             .ok_or_else(|| ClientError::CityNotFound(city.to_string()))
+    }
+
+    pub fn get_weather(&self, location: &Location) -> Result<CurrentWeather, ClientError> {
+        let url = "https://api.openweathermap.org/data/2.5/weather";
+
+        let response = self
+            .client
+            .get(url)
+            .query(&[
+                ("lat", location.lat.to_string().as_str()),
+                ("lon", location.lon.to_string().as_str()),
+                ("units", "metrics"),
+                ("appid", self.api_key.expose()),
+            ])
+            .send()
+            .map_err(ClientError::Request)?;
+
+        match response.status() {
+            reqwest::StatusCode::UNAUTHORIZED => return Err(ClientError::InvalidApiKey),
+            status if !status.is_success() => return Err(ClientError::UnexpectedStatus(status)),
+            _ => {}
+        }
+
+        let weather: CurrentWeather = response.json().map_err(ClientError::InvalidResponse)?;
+
+        Ok(weather)
     }
 }
 

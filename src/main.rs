@@ -32,5 +32,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(location) => location,
     };
 
+    let weather = match client.get_weather(&location) {
+        Err(e) => {
+            eprintln!("{e}");
+            process::exit(1);
+        }
+        Ok(weather) => weather,
+    };
+
+    dbg!(weather);
     Ok(())
 }
