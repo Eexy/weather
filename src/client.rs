@@ -47,23 +47,23 @@ impl std::error::Error for ClientError {}
 
 #[derive(Debug, Deserialize)]
 pub struct Location {
-    name: String,
-    lat: f32,
-    lon: f32,
-    country: String,
+    pub name: String,
+    pub lat: f32,
+    pub lon: f32,
+    pub country: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Condition {
     id: u16,
     main: String,
-    description: String,
+    pub description: String,
     icon: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Measurements {
-    temp: f32,
+    pub temp: f32,
     temp_min: f32,
     temp_max: f32,
     feels_like: f32,
@@ -74,9 +74,9 @@ pub struct Measurements {
 #[derive(Debug, Deserialize)]
 pub struct CurrentWeather {
     #[serde(rename = "main")]
-    measurements: Measurements,
+    pub measurements: Measurements,
     #[serde(rename = "weather")]
-    conditions: Vec<Condition>,
+    pub conditions: Vec<Condition>,
 }
 
 #[derive(Debug)]

@@ -2,9 +2,11 @@ use std::{env, process};
 
 use crate::client::WeatherClient;
 use crate::config::Config;
+use crate::renderer::Renderer;
 
 mod client;
 mod config;
+mod renderer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = match Config::parse(env::args()) {
@@ -40,6 +42,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(weather) => weather,
     };
 
-    dbg!(weather);
+    let output = Renderer::list(&location, &weather);
+
+    println!("{output}");
     Ok(())
 }
