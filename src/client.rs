@@ -82,15 +82,23 @@ impl WeatherClient {
         city: &str,
         country: Option<Country>,
     ) -> Result<Location, ClientError> {
-        let mut url = format!("http://api.openweathermap.org/geo/1.0/direct?q={city}");
+        let url = "http://api.openweathermap.org/geo/1.0/direct";
 
-        if let Some(country) = country {
-            let country_string = format!(",{country}");
-            url.push_str(&country_string);
-        }
+        let query = match country {
+            Some(country) => format!("{city},{country}"),
+            None => city.to_string(),
+        };
 
-        url = format!("{url}&limit=1&appid={}", self.api_key.expose());
-        let response = self.client.get(url).send().map_err(ClientError::Request)?;
+        let response = self
+            .client
+            .get(url)
+            .query(&[
+                ("q", query.as_str()),
+                ("limit", "1"),
+                ("appid", self.api_key.expose()),
+            ])
+            .send()
+            .map_err(ClientError::Request)?;
 
         match response.status() {
             reqwest::StatusCode::UNAUTHORIZED => return Err(ClientError::InvalidApiKey),

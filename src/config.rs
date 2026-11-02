@@ -7,14 +7,14 @@ use std::{
 pub struct Country(String);
 
 impl FromStr for Country {
-    type Err = String;
+    type Err = ConfigError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.len() > 3 {
-            return Err("country code must be have 3 char".to_string());
+        if s.len() != 3 || !s.chars().all(|c| c.is_ascii_alphabetic()) {
+            return Err(ConfigError::InvalidCountryFormat);
         }
 
-        Ok(Country(s.to_uppercase()))
+        Ok(Self(s.to_uppercase()))
     }
 }
 
@@ -65,12 +65,7 @@ impl Config {
                     city = Some(args.next().ok_or(ConfigError::MissingCity)?);
                 }
                 "--country" => {
-                    country = Some(
-                        args.next()
-                            .ok_or(ConfigError::MissingCountry)?
-                            .parse()
-                            .map_err(|_| ConfigError::InvalidCountryFormat)?,
-                    );
+                    country = Some(args.next().ok_or(ConfigError::MissingCountry)?.parse()?);
                 }
                 _ => {
                     return Err(ConfigError::InvalidArgument(flag));
