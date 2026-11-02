@@ -1,15 +1,40 @@
-use std::fmt::{self, Debug};
+use std::{
+    fmt::{self, Debug},
+    str::FromStr,
+};
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Country(String);
+
+impl FromStr for Country {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len() > 3 {
+            return Err("country code must be have 3 char".to_string());
+        }
+
+        Ok(Country(s.to_uppercase()))
+    }
+}
+
+impl fmt::Display for Country {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Config {
     pub city: String,
-    pub country: Option<String>,
+    pub country: Option<Country>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ConfigError {
     MissingCity,
     MissingCountry,
+    InvalidCountryFormat,
     InvalidArgument(String),
 }
 
@@ -19,6 +44,9 @@ impl fmt::Display for ConfigError {
             Self::MissingCity => write!(f, "argument city `-c` need a value"),
             Self::MissingCountry => write!(f, "argument country `--country` need a value"),
             Self::InvalidArgument(arg) => write!(f, "invalid argument {arg}"),
+            Self::InvalidCountryFormat => {
+                write!(f, "invalid country format, expected 3 char country code")
+            }
         }
     }
 }
@@ -29,7 +57,7 @@ impl Config {
     pub fn parse(mut args: impl Iterator<Item = String>) -> Result<Self, ConfigError> {
         args.next();
         let mut city: Option<String> = None;
-        let mut country: Option<String> = None;
+        let mut country: Option<Country> = None;
 
         while let Some(flag) = args.next() {
             match flag.as_str() {
@@ -37,7 +65,12 @@ impl Config {
                     city = Some(args.next().ok_or(ConfigError::MissingCity)?);
                 }
                 "--country" => {
-                    country = Some(args.next().ok_or(ConfigError::MissingCountry)?);
+                    country = Some(
+                        args.next()
+                            .ok_or(ConfigError::MissingCountry)?
+                            .parse()
+                            .map_err(|_| ConfigError::InvalidCountryFormat)?,
+                    );
                 }
                 _ => {
                     return Err(ConfigError::InvalidArgument(flag));
@@ -111,13 +144,13 @@ mod tests {
             String::from("--city"),
             String::from("test"),
             String::from("--country"),
-            String::from("test"),
+            String::from("FR"),
         ]
         .into_iter();
 
         let expected_config = Config {
             city: "test".to_string(),
-            country: Some("test".to_string()),
+            country: Some(Country("FR".to_string())),
         };
 
         assert_eq!(Config::parse(args), Ok(expected_config));

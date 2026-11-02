@@ -3,6 +3,8 @@ use std::fmt::{self, Debug};
 use reqwest::blocking::Client;
 use serde::Deserialize;
 
+use crate::config::Country;
+
 #[derive(PartialEq, Eq)]
 pub struct ApiKey(String);
 
@@ -78,7 +80,7 @@ impl WeatherClient {
     pub fn get_coordinate(
         &self,
         city: &str,
-        country: Option<String>,
+        country: Option<Country>,
     ) -> Result<Location, ClientError> {
         let mut url = format!("http://api.openweathermap.org/geo/1.0/direct?q={city}");
 
