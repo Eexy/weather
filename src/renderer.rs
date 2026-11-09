@@ -23,15 +23,15 @@ impl Row {
 const LABEL_PADDING: usize = 3;
 
 impl Renderer {
-    pub fn list(location: &Location, weather: &CurrentWeather) -> String {
+    pub fn list(location: Location, weather: CurrentWeather) -> String {
         let description = weather
             .conditions
             .first()
             .map_or("unknown", |c| c.description.as_str());
 
         let rows: Vec<_> = vec![
-            Row::new("City", format!("{}", location.name)),
-            Row::new("Country", format!("{}", location.country)),
+            Row::new("City", location.name),
+            Row::new("Country", location.country),
             Row::new("Temp", format!("{:.1}°C", weather.measurements.temp)),
             Row::new(
                 "Min / Max",
