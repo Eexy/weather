@@ -58,17 +58,15 @@ pub struct Condition {
     id: u16,
     main: String,
     pub description: String,
-    icon: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Measurements {
     pub temp: f32,
-    temp_min: f32,
-    temp_max: f32,
-    feels_like: f32,
-    pressure: u16,
-    humidity: u16,
+    pub temp_min: f32,
+    pub temp_max: f32,
+    pub feels_like: f32,
+    pub humidity: u16,
 }
 
 #[derive(Debug, Deserialize)]
