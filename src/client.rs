@@ -3,7 +3,7 @@ use std::fmt::{self, Debug};
 use reqwest::blocking::{Client, ClientBuilder};
 use serde::Deserialize;
 
-use crate::config::Country;
+use crate::args::Country;
 
 #[derive(PartialEq, Eq)]
 pub struct ApiKey(String);

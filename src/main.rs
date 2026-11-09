@@ -1,21 +1,15 @@
 use std::{env, process};
 
-use crate::client::WeatherClient;
-use crate::config::Config;
-use crate::renderer::Renderer;
+use clap::Parser;
 
+use crate::{args::Args, client::WeatherClient, renderer::Renderer};
+
+mod args;
 mod client;
-mod config;
 mod renderer;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = match Config::parse(env::args()) {
-        Ok(config) => config,
-        Err(e) => {
-            eprintln!("{e}");
-            process::exit(1);
-        }
-    };
+    let args = Args::parse();
 
     dotenvy::dotenv()?;
     let client = match WeatherClient::parse(env::vars()) {
@@ -26,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let location = match client.get_coordinate(&config.city, config.country) {
+    let location = match client.get_coordinate(&args.city, args.country) {
         Err(e) => {
             eprintln!("{e}");
             process::exit(1);
