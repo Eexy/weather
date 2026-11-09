@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::fmt::Write;
 
 use crate::client::{CurrentWeather, Location};
@@ -23,7 +24,7 @@ impl Row {
 const LABEL_PADDING: usize = 3;
 
 impl Renderer {
-    pub fn list(location: Location, weather: CurrentWeather) -> String {
+    pub fn fetch(location: Location, weather: CurrentWeather) -> String {
         let description = weather
             .conditions
             .first()
@@ -56,7 +57,7 @@ impl Renderer {
             let _ = writeln!(
                 result,
                 "{:<width$}: {}",
-                format!("{}", row.label),
+                row.label.cyan(),
                 row.value,
                 width = label_size
             );

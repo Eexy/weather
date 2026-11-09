@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(weather) => weather,
     };
 
-    let output = Renderer::list(location, weather);
+    let output = Renderer::fetch(location, weather);
 
     println!("{output}");
     Ok(())
